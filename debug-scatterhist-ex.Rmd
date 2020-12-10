@@ -11,7 +11,16 @@ plot_scatterhist(x)
 ```
 
 a) Benutzen Sie `traceback()` um rauszukriegen warum `plot_scatterhist(trees)` nicht funktioniert. Beschreiben Sie das Problem.
+Meine Hypothese ist, dass es Probleme gibt weil der DS `trees` aus 3 Spalten besteht. Experiment: `plot_scatterhist(trees[,c(1,3)])` laeuft einwandfrei. 
+Jetzt `traceback()` anschauen.
+Der Output von`traceback()` sollte von unten nach oben gelesen werden. 
+Da die `.R` Datei gesourced wurde erkennt man schnell, dass man sich Zeile 7 im `scatter-start.R` schauen sollte. Somit entsteht das Problem innerhalb des `plot()` Aufrufs. `plot()` weiß bei einer `n x 2`, dass eine Spalte `x` und die andere `y` ist (bzw. geht auch eine Spalte dann wird Input als `y` und die Indices als `x` genutzt. Hier aber nicht der Fall).
+Es werden also genau zwei Spalten benoetigt. Ich denke mal, dass der Fehler bei `6:` zu suchen ist, da `pairs.default()` ja nur scatterplots zwischen allen Variablen abbildet und das sollte ja klappen. `localPlot()` versucht zwischen zwei Spalten einen Plot zu bilden. Ist hier aber nicht eindeutig, da mehr als zwei Spalten vorhanden sind.
+Die FKt. `plot_scatterhist()` arbeitet somit nur wenn ein passendes Format vorhanden ist. Außerdem werden ja auch zwei Barplots oberhalb und rechts daneben abgebildet, was auch wieder dafuer spricht, dass nur zwei Variable benutzt werden sollen.
+Ein Input check waere hier passend oder man ermoeglicht die Eingabe von Namen der abzubildenden Spalten.
+
 b) Benutzen Sie `debug()` um bei dem Aufruf `plot_scatterhist(x)` Zeile für Zeile durch den Code zu gehen. Quadrieren Sie die Daten *nachdem* der Scatterplot gezeichnet wurde aber *bevor* die Histogramme gezeichnet werden. Das sollte dann -- völlig sinnloserweise -- so wie die untenstehende Grafik aussehen:
+- DONE
 
 ```{r, square_debug, echo=FALSE, message=FALSE, fig.height=3, fig.width=5, results='hide'}
 trace(plot_scatterhist, at = 5, quote({
@@ -22,6 +31,7 @@ untrace(plot_scatterhist)
 ```
 
 c) Setzen Sie einen Breakpoint in `plot_scatterhist()` so, dass sie den interaktiven Debugger genau vor dem ersten Aufruf von `plot()` in `plot_scatterhist()` betreten. 
+- DONE
 
 *Hinweis*: Hier nur Prosa-Antworten gefragt, sie müssen Ihre Lösung nicht mit Programmcode dokumentieren -- z.B. `traceback()` wird in einem .Rmd file nicht den selben Output produzieren wie in einem normalen R-Skript...
 
