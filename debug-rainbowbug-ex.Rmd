@@ -20,6 +20,7 @@ Das Paket `rainbow` [[pdf]](cran.r-project.org/web/packages/rainbow/vignettes/ra
 unter anderem eine Art Boxplot für funktionale Daten mit `fboxplot()`. 
 Diese Funktion produziert hier zwar den korrekten Plot (rechtes Panel in der folgenden Grafik), aber auch eine Fehlermeldung:
 ```{r, fbox_error, error=TRUE, message=FALSE, fig.width=13, fig.height=5}
+colnames(x) <- paste("col",seq_len(ncol(x)), sep = "")
 # fds creates "functional data"-objects, see ?fds and ?fboxplot
 x_fds <- fds(x = t_grid, y = x)
 
@@ -29,5 +30,20 @@ fboxplot(x_fds)
 ```
 
 a) Lokalisieren Sie wo im Code der Fehler auftritt (also: *Auslöser* des Fehlers), ermitteln Sie die *Ursache* des Fehlers (nicht das selbe!). Was müssten Sie im obigen Code-Snippet ändern, damit der Fehler nicht mehr auftritt?  
+- Der Ausloeser der Fehlermeldung tritt bei `as.graphicsAnnot(legend)` auf, jedoch kommt es bereits davor zu Warnmeldungen.
+- Die Ursache der Warnmeldungen ist, dass die `y` keine Spaltennamen besitzen, was dann in der Funktion `fbag` zu Problmen fuehrt.
+Das liegt aber eigentlich nur daran, weil `x` bereits beim bilden des `fds-Objekt` keine Namen enthalten hat. Aendert man dies vorher, also gibt man den Spalten der `x`-Matrix Namen kommt es nicht mehr zu der Fehlermeldung.
+
 Benutzen Sie den interaktiven Debugger und die anderen Debugging-Werkzeige die Sie kennen um diese Aufgabe zu lösen.
+In folgender Reihe vorgegangen:
+- erstmal `traceback()` fuer groben Ueberblick und um zusehen bei welcher Funktionen ich mit `debug()` eine Ebene tiefer gehen muss.
+- Wissen aus `traceback()` zum navigieren `debug()` genutzt
+
 b) Wie könnte der Code im `rainbow`-Paket verbessert werden um den obigen Fehler zu vermeiden? (keine Implementation gefragt, Pseudo-Code / Lösungsskizze genügt...)
+- Man koennte das im Code-Snippet eingefuegt in der Funktion `fboxplot`, also in eigentlich in `fbag`, unterbringen.
+
+- Anderseits hab ich mal in einem krassen Youtube Video ;) gesehen, dass bei `[` IMMER ein `drop = FALSE` zu benutzen werden soll, da wir sonst nie dieselbe Art von Rueckwert produzieren bzw. wenn wir aus einer Matrix/Data.frame ein Spalte/Zeile extrahieren verlieren wir dadurch ja unter anderem die ganzen Namen wegen `drop=TRUE`.
+Dies wurde in `fboxplot` nicht beruecksichtigt. 
+Beispiele:- `insidecurve` mit `y[inside, ]` oder `outcurve <- y[out, ]`
+
+Oder vielleicht wurde es hier aber auch absichtlich nicht genutzt :D
