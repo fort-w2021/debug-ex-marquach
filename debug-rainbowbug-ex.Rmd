@@ -40,10 +40,10 @@ In folgender Reihe vorgegangen:
 - Wissen aus `traceback()` zum navigieren `debug()` genutzt
 
 b) Wie könnte der Code im `rainbow`-Paket verbessert werden um den obigen Fehler zu vermeiden? (keine Implementation gefragt, Pseudo-Code / Lösungsskizze genügt...)
-- Man koennte das im Code-Snippet eingefuegt in der Funktion `fboxplot`, also in eigentlich in `fbag`, unterbringen.
+- Man koennte das im Code-Snippet eingefuegt in der Funktion `fboxplot`, also in eigentlich unter `if(plotlegend == TRUE)`, unterbringen. (Irgendwie fad) Also wenn keine Spaltennamen vorhanden sind, einfach welche bilden.
 
-- Anderseits hab ich mal in einem krassen Youtube Video ;) gesehen, dass bei `[` IMMER ein `drop = FALSE` zu benutzen werden soll, da wir sonst nie dieselbe Art von Rueckwert produzieren bzw. wenn wir aus einer Matrix/Data.frame ein Spalte/Zeile extrahieren verlieren wir dadurch ja unter anderem die ganzen Namen wegen `drop=TRUE`.
+- Anderseits hab ich mal in einem krassen Youtube Video ;) gesehen, dass bei `[` IMMER ein `drop = FALSE` zu benutzen werden soll, da wir sonst nie dieselbe Art von Rueckwert produzieren bzw. wenn wir aus einer Matrix/Data.frame ein Zeile extrahieren verlieren wir dadurch ja unter anderem die ganzen Namen wegen `drop=TRUE`.
 Dies wurde in `fboxplot` nicht beruecksichtigt. 
 Beispiele:- `insidecurve` mit `y[inside, ]` oder `outcurve <- y[out, ]`
 
-Oder vielleicht wurde es hier aber auch absichtlich nicht genutzt :D
+Da mein Wissen aber beschraenkt ist und die Herren Shang und Hyndman im Gegensatz zu mir unendliches Wissen haben bin ich mir doch nicht ganz so sicher, ob es hier nicht doch einfach Absicht war :D

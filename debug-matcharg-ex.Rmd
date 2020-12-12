@@ -11,8 +11,85 @@ make_something <- function(something = c("mess", "cake", "hyuuge mistake")) {
   something <- match.arg(something)
   message("I made a", something, ".\n")
 }
-debugonce(match.arg)
+debugonce(make_something)
 make_something()
+make_something("cake")
+make_something(c("cake","mess"))
+make_something("")
+make_something(1)
+make_something("mean")
+
+
+match.arg <- function (arg, choices, several.ok = FALSE)
+{
+    if (missing(choices)) { 
+      #used if choices are missing. always in our case as make_something() only takes one input. Mhmm not good
+      # so input of make something is used in match.arg as arg. If missing arg, default of make_something is usde
+      
+	formal.args <- formals(sys.function(sysP <- sys.parent()))    
+	# sys.parent is per default n = 1, so it goes one generation back to the environment of make_something()
+	# So sys.function gets 1 as input, this is fine because we have one frame stack in makes_something()
+	# (one function to "jump" in inside make_something() )
+	# It uses the formals of make_something() as possible choices [can be several, in our case just something]
+	# formal.args is a list
+	
+	choices <- eval(formal.args[[as.character(substitute(arg))]],  
+			envir = sys.frame(sysP))
+	# choices is now a dotted list (past R), so we need [[ to get the possible inputs of something = c("mess",..)
+	# is needed to get the right formal, if multiple are possible
+    }
+  
+    if (is.null(arg)) 
+      # If arg is NULL first element will be returned by default
+      return(choices[1L])
+  
+  # Code smells if else
+    else if(!is.character(arg))
+      # if arg is not a character stop and return message
+	stop("'arg' must be NULL or a character vector")
+  
+  # if arg is only one element this happens
+    if (!several.ok) { # most important (default) case:
+        ## the arg can be the whole of choices as a default argument.
+       
+       if(identical(arg, choices)) return(arg[1L])
+      # if arg and choices are the same return the first element of arg. 
+      # This is the case if we use debugonce() and then use make_something without input, 
+      # because something is per default a vector of length three and so arg and choices are the same
+      
+        if(length(arg) > 1L) stop("'arg' must be of length 1")
+      # if more then one argument is supplied, make_something stops and returns error
+      # example c("mess", "cake")
+      
+      # code smells else if
+    } else if(length(arg) == 0L) stop("'arg' must be of length >= 1")
+      # same as above but now for the case if we supply no input and function does not any default input
+      # Question: How can this be triggered? I tried an empty character and i got the error message because of pmatch()
+  
+    ## handle each element of arg separately
+    i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
+    # pmatch seeks matches for the elements of its first argument among those of its second. 
+    # This happens if we use "mean" as input. No problem till this point, but we get a zero, because mean in c("mess",...
+    if (all(i == 0L))
+      #need all because i can be a vector, because of partial string matching (pmatch) and then if does not work
+	stop(gettextf("'arg' should be one of %s",
+                      paste(dQuote(choices), collapse = ", ")),
+             domain = NA)
+    # This stop sequence is triggered if we use "mean" as input, because i == 0 as mentioned above.
+    
+    i <- i[i > 0L]
+    # just use the i's which are greater 0
+    if (!several.ok && length(i) > 1)
+      # if several.ok is FALSE and i is more then one element, make_something stops with message below
+        stop("there is more than one match in 'match.arg'")
+    choices[i]
+    #return choices[i] (maybe several returns of several.ok = TRUE)
+}
+
+
+
+
+
 ```
 um Zeile für Zeile durch `match.arg()` zu gehen. Finden Sie heraus was vor sich geht. Dafür müssen Sie wahrscheinlich `make_something()` auch mal mit anderen Argumenten aufrufen. Schreiben Sie für jede (nicht völlig triviale)  Zeile in `match.arg()` einen Kommentar in ihre Kopie des `match.arg()`-Codes der erklärt wie & warum was passiert.
 

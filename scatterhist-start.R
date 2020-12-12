@@ -14,3 +14,5 @@ plot_scatterhist <- function(x, xbreaks = 10, ybreaks = 10, ...) {
   par(mar = c(3, 0, 1, 2))
   barplot(y$counts, col = 0, space = 0, horiz = TRUE)
 }
+
+
